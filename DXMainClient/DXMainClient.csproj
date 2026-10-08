@@ -1,0 +1,73 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType Condition="'$(Engine)' != 'UniversalGL'">WinExe</OutputType>
+    <OutputType Condition="'$(Engine)' == 'UniversalGL'">Exe</OutputType>
+    <!-- Specify Prefer32Bit only for .NET 4.8 XNA build. -->    
+    <Prefer32Bit Condition="'$(Engine)' == 'WindowsXNA' And '$(TargetFrameworkIdentifier)' == '.NETFramework'">true</Prefer32Bit>
+    <Prefer32Bit Condition="'$(Engine)' != 'WindowsXNA' And '$(TargetFrameworkIdentifier)' == '.NETFramework'">false</Prefer32Bit>
+    <!-- For .NET 8 builds, there are no Prefer32Bit option but RuntimeIdentifier. -->
+    <!-- Although it is not necessary to specify this RuntimeIdentifier parameter since we don't use AppHost, we still define it to make the `.deps.json` file correct. -->
+    <RuntimeIdentifier Condition="'$(Engine)' == 'WindowsXNA' And '$(TargetFrameworkIdentifier)' != '.NETFramework'">win-x86</RuntimeIdentifier>
+    <UseCurrentRuntimeIdentifier>false</UseCurrentRuntimeIdentifier>
+    <UseAppHost>false</UseAppHost>
+    <SelfContained>false</SelfContained>
+    <Description>CnCNet Main Client</Description>
+    <AssemblyTitle>CnCNet Client</AssemblyTitle>
+    <RootNamespace>DTAClient</RootNamespace>
+    <ApplicationIcon>clienticon.ico</ApplicationIcon>
+    <ApplicationHighDpiMode Condition="'$(Engine)' == 'UniversalGL' OR '$(Engine)' == 'WindowsGL'">SystemAware</ApplicationHighDpiMode>
+    <ApplicationHighDpiMode Condition="'$(Engine)' != 'UniversalGL' AND '$(Engine)' != 'WindowsGL'">PerMonitorV2</ApplicationHighDpiMode>
+    <AssemblyName Condition="'$(Engine)' == 'WindowsDX'">clientdx</AssemblyName>
+    <AssemblyName Condition="'$(Engine)' == 'UniversalGL' Or '$(Engine)' == 'WindowsGL'">clientogl</AssemblyName>
+    <AssemblyName Condition="'$(Engine)' == 'WindowsXNA'">clientxna</AssemblyName>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+  </PropertyGroup>
+  <PropertyGroup>
+    <!-- Suppress the warning on introducing a manifest file -->
+    <NoWarn>$(NoWarn);WFAC010;WFO0003</NoWarn>
+    <ApplicationManifest Condition="'$(Engine)' == 'UniversalGL' OR '$(Engine)' == 'WindowsGL'">app.SystemAware.manifest</ApplicationManifest>
+    <ApplicationManifest Condition="'$(Engine)' != 'UniversalGL' AND '$(Engine)' != 'WindowsGL'">app.PerMonitorV2.manifest</ApplicationManifest>
+    <TargetFrameworks>net48</TargetFrameworks>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Remove="Resources\**" />
+    <EmbeddedResource Remove="Resources\**" />
+    <None Remove="Resources\**" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Remove="Icons\*.png" />
+    <EmbeddedResource Include="Icons\*.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="clienticon.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Facepunch.Steamworks" GeneratePathProperty="true" />
+    <PackageReference Include="FFmpeg.AutoGen" />
+    <PackageReference Include="SixLabors.ImageSharp" />
+    <PackageReference Include="DiscordRichPresence" />
+    <PackageReference Include="lzo.net" />
+    <PackageReference Include="Microsoft.Extensions.Hosting" />
+    <PackageReference Include="OpenMcdf" />
+    <PackageReference Include="System.Management" />
+    <PackageReference Include="System.DirectoryServices" />
+    <PackageReference Include="System.Private.Uri" />
+    <PackageReference Include="System.Text.Json" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\ClientGUI\ClientGUI.csproj" />
+    <ProjectReference Include="..\ClientUpdater\ClientUpdater.csproj" />
+  </ItemGroup>
+  <ItemGroup Condition="'$(TargetFrameworkIdentifier)' == '.NETFramework'">
+    <None Include="$(PkgFacepunch_Steamworks)\content\steam_api64.dll">
+      <Link>x64/steam_api64.dll</Link>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+  <ItemGroup Condition="'$(TargetFrameworkIdentifier)' != '.NETFramework'">
+    <None Include="$(PkgFacepunch_Steamworks)\content\steam_api64.dll">
+      <Link>runtimes/win-x64/native/steam_api64.dll</Link>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+</Project>

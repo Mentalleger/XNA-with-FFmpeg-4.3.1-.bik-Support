@@ -1,0 +1,9 @@
+{
+  "profiles": {
+    "DXMainClient": {
+      "commandName": "Executable",
+      "executablePath": "D:\\XNAClient\\DXMainClient\\bin\\Debug\\clientxna.exe",
+      "workingDirectory": "D:\\XNAClient\\DXMainClient\\bin\\Debug"
+    }
+  }
+}

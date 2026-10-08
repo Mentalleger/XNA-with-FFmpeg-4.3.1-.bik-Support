@@ -1,0 +1,953 @@
+﻿# Instructions on how to construct the UI using INI files.
+> [!NOTE]
+> _TODO work in progress_
+
+## Constants
+The `[ParserConstants]` section of the `GlobalThemeSettings.ini` file contains constants that can be used in other INI files.
+
+### Predefined System Constants
+`RESOLUTION_WIDTH`: the width of the window when it is initialized  
+`RESOLUTION_HEIGHT`: the height of the window when it is initialized  
+
+### User Defined Constants
+
+```ini
+MY_EXAMPLE_CONSTANT=15
+```
+
+The above user-defined or system constants can be used elsewhere as:
+
+```ini
+[MyExampleControl]
+$X=MY_EXAMPLE_CONSTANT
+```
+_NOTE: Constants can only be used in [dynamic control properties](#dynamic-control-properties)_
+
+### Data Types
+
+- The `text` use `@` as a line break. To write the real `@` character, use `\@`. Also as INI syntax uses `;` to denote comments, use `\semicolon` to write the real `;` character.
+- The `color` use string form `R,G,B` or `R,G,B,A`. All values must be between `0` and `255`. Example: `255,255,255`, `255,255,255,255`.
+- The `boolean` string value parses as `true` if it contains one of these symbol as first character: `t`, `y`, `1`, `a`, `e`; and if first symbol is `n`, `f`, `0`, then it parses as `false`. 
+- The `integer` type is actually `System.Int32`.
+- The `float` type is actually `System.Single`.
+- The `N integers` or `N floats` is a `integer` or `float` type values repeated `N` times, but separated with `,` character without spaces e.g., `0,0` or `0.0,0.0` for `2 integers` or `2 floats` respectively.
+- The `comma-separated strings` is a string, but separated with `,` character without spaces e.g., `one,two,three`.
+<!-- - The `comma separated integers` or `comma separated floats` is a `integer` or `float` type, but separated with `,` character without spaces e.g., `0,0` or `0.0,0.0` respectively. -->
+
+## Control Properties
+
+Below lists basic and dynamic control properties. Ordering of properties is important. If there is a property that relies on the size of a control, the properties must set the size of that control first.
+
+### Basic Control Properties
+
+Basic control properties cannot use constants.
+> [!WARNING]
+> Do not copy-paste ini-code below without edits because it won't work! It shows only how to work with properties.
+> 
+> For example,
+> - `X` and `Y` are conflict with `Location`,
+> - `BackgroundTexture` and `SolidColorBackgroundTexture` conflicts,
+> - and many others.
+
+#### [XNAControl](https://github.com/Rampastring/Rampastring.XNAUI/blob/master/XNAControls/XNAControl.cs)
+
+- Basic class inherited by any other control element.
+
+```ini
+[SOMECONTROL]                      ; XNAControl
+X=                                 ; integer,    the X location of the control.
+Y=                                 ; integer,    the Y location of the control.
+Location=                          ; 2 integers, the X and Y location of the control.
+Width=                             ; integer,    the Width of the control.
+Height=                            ; integer,    the Height of the control.
+Size=                              ; 2 integers, the Width and Height of the control.
+Text=                              ; text,       the text to display for the control (ex: buttons, labels, etc...).
+Visible=true                       ; boolean,    whether or not the control should be visible by default.
+Enabled=true                       ; boolean,    whether or not the control can be interacted with by default.
+DistanceFromRightBorder=0          ; integer,    the distance of the right edge of this control from 
+                                   ;             the right edge of its parent. This control MUST have a parent.
+DistanceFromBottomBorder=0         ; integer,    the distance of the bottom edge of this control from the 
+                                   ;             bottom edge of its parent. This control MUST have a parent.
+FillWidth=0                        ; integer,    this will set the width of this control to fill 
+                                   ;             the parent/window MINUS this value, starting from the its X position.
+FillHeight=0                       ; integer,    this will set the height of this control to fill 
+                                   ;             the parent/window MINUS this value, starting from the its Y position.
+DrawOrder=0                        ; integer,    determine the layering order of the control within 
+                                   ;             its parent control's list of child controls.
+UpdateOrder=0                      ; integer,    determine the layering order of the control within 
+                                   ;             its parent control's list of child controls.
+RemapColor=255,255,255             ; color,      this will set a theme defined color based.
+ControlDrawMode=UniqueRenderTarget ; enum (UniqueRenderTarget | Normal), 
+                                   ;             this will set render option to draw control on its own render 
+                                   ;             target (`UniqueRenderTarget`) or to draw control on 
+                                   ;             the same render target with its parent (`Normal`).
+```
+
+#### [XNAIndicator](https://github.com/Rampastring/Rampastring.XNAUI/blob/master/XNAControls/XNAIndicator.cs)
+
+_(inherits [XNAControl](#XNAControl))_
+
+```ini
+[SOMEINDICATOR]            ; XNAIndicator
+FontIndex=0                ; integer, the index of font loaded from font list. Default value is `0`.
+HighlightColor=255,255,255 ; color,   the text color when cursor above the `XNAIndicator`.
+AlphaRate=0.1              ; float,   the indicator's transparency changing rate per 100 milliseconds. 
+                           ;          If the indicator is transparent, it'll become non-transparent at this rate. 
+```
+
+#### [XNAPanel](https://github.com/Rampastring/Rampastring.XNAUI/blob/master/XNAControls/XNAPanel.cs)
+
+_(inherits [XNAControl](#XNAControl))_
+
+```ini
+[SOMEPANEL]                  ; XNAPanel
+BorderColor=196,196,196      ; color,      this will set a border color based.
+AlphaRate=0.01               ; float,      the panel's transparency changing rate per 100 milliseconds.
+                             ;             If the panel is transparent, it'll become non-transparent at this rate.
+BackgroundTexture=           ; string,     loads a texture with the specific file name with suffix.
+                             ;             If the texture isn't found from any asset search path,
+                             ;             returns a dummy texture.
+SolidColorBackgroundTexture= ; color,      this will set background color stretched texture instead of 
+                             ;             user defined picture.
+DrawBorders=true             ; boolean,    enables or disables borders drawing for control. 
+                             ;             Borders enabled by default.
+Padding=                     ; 4 integers, css-like panel padding in client window e.g.,
+                             ;             `1,2,3,4` where `1` - left, `2` - top, `3` - right, `4` - bottom.
+DrawMode=Stretched           ; enum (Tiled | Centered | Stretched), 
+                             ;             this will set draw mode for panel.
+```
+
+#### [XNAExtraPanel](https://github.com/CnCNet/xna-cncnet-client/blob/develop/ClientGUI/XNAExtraPanel.cs)
+
+_(inherits [XNAPanel](#XNAPanel))_
+
+```ini
+[SOMEEXTRAPANEL]   ; XNAExtraPanel
+BackgroundTexture= ; string, same as XNAControl's `BackgroundTexture`.
+```
+
+#### [XNATextBlock](https://github.com/Rampastring/Rampastring.XNAUI/blob/master/XNAControls/XNATextBlock.cs)
+
+_(inherits [XNAPanel](#XNAPanel))_
+
+```ini
+[SOMETEXTBLOCK]       ; XNATextBlock
+TextColor=196,196,196 ; color, defines text color for text block.
+```
+
+#### [XNAMultiColumnListBox](https://github.com/Rampastring/Rampastring.XNAUI/blob/master/XNAControls/XNAMultiColumnListBox.cs)
+
+_(inherits [XNAPanel](#XNAPanel))_
+
+```ini
+[SOMEMULTICOLUMBLISTBOX]         ; XNAMultiColumnListBox
+FontIndex=0                      ; integer,        the index of font loaded from font list.
+DrawSelectionUnderScrollbar=yes  ; boolean,        enable/disable scroll bar, default value is `true`.
+ColumnWidthN=                    ; integer,        the default columns width in pixels. `N` is integer column index.
+ColumnX=                         ; string:integer, the column definition. `string` is a column header text. 
+                                 ;                 `integer` is a column width in pixels. `X` is an any text.
+ListBoxYAttribute:Attrname=Value ; string,         allows setting list box attributes. `Attrname` is column attribute.
+                                 ;                 `Value` is column attribute value.
+```
+
+#### [XNATrackbar](https://github.com/Rampastring/Rampastring.XNAUI/blob/master/XNAControls/XNATrackbar.cs)
+
+_(inherits [XNAPanel](#XNAPanel))_
+
+```ini
+[SOMETRACKBAR] ; XNATrackbar
+MinValue=0     ; integer, the minumum value available for XNATrackbar.
+MaxValue=10    ; integer, the maximum value available for XNATrackbar.
+Value=0        ; integer, the default value available for XNATrackbar.
+ClickSound=    ; string,  loads a sound with the specific file name with suffix as XNATrackbar click sound.
+```
+
+#### [XNALabel](https://github.com/Rampastring/Rampastring.XNAUI/blob/master/XNAControls/XNALabel.cs)
+
+_(inherits [XNAControl](#XNAControl))_
+
+```ini
+[SOMELABEL]            ; XNALabel
+RemapColor=255,255,255 ; color,    same as XNAControl's `RemapColor`.
+TextColor=196,196,196  ; color,    determine color of the text in label.
+FontIndex=0            ; integer,  the index of font loaded from font list.
+AnchorPoint=0.0,0.0    ; 2 floats, this will set a label's text start drawing point.
+TextShadowDistance=0.1 ; float,    the distance between text and its shadow.
+TextAnchor=            ; enum (NONE | LEFT | RIGHT | HORIZONTAL_CENTER | TOP | BOTTOM | VERTICAL_CENTER),
+                       ;           this will set a text anchor in label draw box.
+```
+
+#### [XNAButton](https://github.com/Rampastring/Rampastring.XNAUI/blob/master/XNAControls/XNAButton.cs)
+
+_(inherits [XNAControl](#XNAControl))_
+
+```ini
+[SOMEBUTTON]               ; XNAButton
+TextColorIdle=255,255,255  ; color,   the text color when cursor isn't above the button.
+TextColorHover=255,255,255 ; color,   the text color when cursor above the button.
+HoverSoundEffect=          ; string,  loads a sound with the specific file name with suffix as button hover sound.
+ClickSoundEffect=          ; string,  loads a sound with the specific file name with suffix as button click sound.
+AdaptiveText=true          ; boolean, specifies how the client should change the start text drawing position 
+                           ;          in the button to fill all the free space. Default value is `true`.
+AlphaRate=0.01             ; float,   the button's transparency changing rate per 100 milliseconds. 
+                           ;          If the button is transparent, it'll become non-transparent at this rate. 
+FontIndex=0                ; integer, the index of loaded from font list.
+IdleTexture=               ; string,  loads a texture with the specific file name with suffix as button idle texture.
+HoverTexture=              ; string,  loads a texture with the specific file name with suffix as button hover texture.
+TextShadowDistance=0.1     ; float,   the distance between text and its shadow.
+```
+
+#### [XNAClientButton](https://github.com/CnCNet/xna-cncnet-client/blob/develop/ClientGUI/XNAClientButton.cs)
+
+_(inherits [XNAButton](#XNAButton))_
+
+```ini
+[SOMECLIENTBUTTON] ; XNAClientButton
+MatchTextureSize=  ; boolean, the button's width and height will match its texture properties. 
+ToolTip=           ; text,    the tooltip for button.
+```
+
+#### [XNAClientToggleButton](https://github.com/CnCNet/xna-cncnet-client/blob/develop/ClientGUI/XNAClientToggleButton.cs)
+
+_(inherits [XNAButton](#XNAButton))_
+
+```ini
+[SOMECLIENTTOGGLEBUTTON] ; XNAClientToggleButton
+CheckedTexture=          ; string, loads a texture with the specific file name with suffix as toggle button checked texture.
+UncheckedTexture=        ; string, loads a texture with the specific file name with suffix as toggle button unchecked texture.
+ToolTip=                 ; text, the tooltip for toggle button.
+```
+
+#### [XNALinkButton](https://github.com/CnCNet/xna-cncnet-client/blob/develop/ClientGUI/XNALinkButton.cs)
+
+_(inherits [XNAClientButton](#XNAClientButton))_
+
+```ini
+[SOMELINKBUTTON] ; XNALinkButton
+URL=             ; string, the URL-link for OS Windows.
+UnixURL=         ; string, the URL-link for Unix-like OS.
+Arguments=       ; string, the arguments separated with space for URL-link.
+```
+
+#### [XNACheckbox](https://github.com/Rampastring/Rampastring.XNAUI/blob/master/XNAControls/XNACheckBox.cs)
+
+_(inherits [XNAControl](#XNAControl))_
+
+```ini
+[SOMECHECKBOX]             ; XNACheckbox
+FontIndex=0                ; integer, the index of font loaded from font list.
+IdleColor=196,196,196      ; color,   the the text color when cursor isn't above the checkbox.
+HighlightColor=255,255,255 ; color,   the text color when cursor above the checkbox.
+AlphaRate=0.1              ; float,   the checkbox's transparency changing rate per 100 milliseconds. 
+                           ;          If the checkbox is transparent, it'll become non-transparent at this rate. 
+AllowChecking=true         ; boolean, the allows user to check/uncheck checkbox.
+Checked=true               ; boolean, the default checkbox status.
+```
+
+#### [XNAClientCheckbox](https://github.com/CnCNet/xna-cncnet-client/blob/develop/ClientGUI/XNAClientCheckBox.cs)
+
+_(inherits [XNACheckBox](#XNACheckbox))_
+
+```ini
+[SOMECLIENTCHECKBOX] ; XNAClientCheckbox
+ToolTip=             ; text, the tooltip for checkbox.
+```
+
+#### [XNADropDown](https://github.com/Rampastring/Rampastring.XNAUI/blob/master/XNAControls/XNADropDown.cs)
+
+_(inherits [XNAControl](#XNAControl))_
+
+```ini
+[SOMEDROPDOWN]                  ; XNADropDown
+OpenUp=false                    ; boolean, defines open/close default status.
+DropDownTexture=                ; string,  loads a texture with the specific file name with suffix as 
+                                ;          texture when dropdown closed.
+DropDownOpenTexture=            ; string,  loads a texture with the specific file name with suffix as 
+                                ;          texture when dropdown opened.
+ItemHeight=17                   ; integer, the height of each dropdown item in pixels.
+ClickSoundEffect=               ; string,  loads a sound with the specific file name with suffix as 
+                                ;          dropdown click sound.
+FontIndex=0                     ; integer, the index of font loaded from font list.
+BorderColor=196,196,196         ; color,   the color for dropdown's border line when it open.
+FocusColor=64,64,64             ; color,   the color for dropdown item when cursore above it.
+BackColor=0,0,0                 ; color,   the background color dropdown when it open.
+DisabledItemColor=169,169,169   ; color,   the color for disabled dropdown item.
+OptionX=                        ; string,  the text option for dropdown. `X` is an any text that helps to 
+                                ;          describe this option e.g., `Option_FirstOption`.
+; Option_FirstOption=1
+; Option_SecondOption=two
+; Option_ThirdOption=33333
+```
+
+#### [XNAClientDropDown](https://github.com/CnCNet/xna-cncnet-client/blob/develop/ClientGUI/XNAClientDropDown.cs)
+
+_(inherits XNADropDown)_
+
+```ini
+[SOMECLIENTDROPDOWN] ; XNAClientDropDown
+ToolTip=            ; text, tooltip for dropdown.
+```
+
+#### [XNAClientColorDropDown](https://github.com/CnCNet/xna-cncnet-client/blob/develop/ClientGUI/XNAClientColorDropDown.cs)
+
+_(inherits XNAClientDropDown)_
+
+```ini
+[SOMECOLORDROPDOWN] ; XNAClientColorDropDown
+ItemsDrawMode=TextAndIcon         ; enum (Text | Icon | TextAndIcon),
+                                  ; this will set what combination of texture and text should client use.
+RandomColorTexture=randomicon.png ; string, the file to load as texture for random color.
+DisabledItemTexture=              ; string, the file to load as texture for disabled items, defaults to texture generated from disabled item color
+ColorTextureHeight=               ; int, color icon height in pixels.
+ColorTextureWidth=                ; int, color icon width in pixels.
+```
+
+
+#### [XNATabControl](https://github.com/Rampastring/Rampastring.XNAUI/blob/master/XNAControls/XNATabControl.cs)
+
+_(inherits [XNAControl](#XNAControl))_
+
+```ini
+[SOMETABCONTROL]              ; XNATabControl
+RemapColor=255,255,255        ; color,   the tab text color.
+TextColor=255,255,255         ; color,   the tab text color.
+TextColorDisabled=169,169,169 ; color,   the color for disabled tab.
+RemoveTabIndexN=false         ; boolean, `N` is `integer` equivalent of tab index.
+
+; RemoveTabIndex0=true
+```
+
+#### [XNATextBox](https://github.com/Rampastring/Rampastring.XNAUI/blob/master/XNAControls/XNATextBox.cs)
+
+_(inherits [XNAControl](#XNAControl))_
+
+```ini
+[SOMETEXTBOX]                ; XNATextBox
+MaximumTextLength=2147483647 ; integer, set maximum input string length.
+```
+
+#### [XNASuggestionTextBox](https://github.com/Rampastring/Rampastring.XNAUI/blob/master/XNAControls/XNASuggestionTextBox.cs)
+
+_(inherits [XNATextBox](#XNATextBox))_
+
+```ini
+[SOMESUGGESTIONTEXTBOX] ; XNASuggestionTextBox
+Suggestion=             ; string, set default background text when no text has typed.
+```
+
+### Basic Control Property Examples
+
+```ini
+[lblExample]
+X=100
+Y=100
+Text=Text Sample
+ToolTip=Big and beautiful tooltip@that help to undestand lblExample.
+TextColor=255,255,255
+Size=100,100
+Visible=yes
+Enabled=false
+DistanceFromRightBorder=10
+DistanceFromLeftBorder=10
+FillWidth=10
+FillHeight=10
+```
+
+### Special Controls & Their Properties
+
+Some controls are only available under specific circumstances.
+
+#### CoopBriefingBox
+
+```ini
+; GameLobbyBase.ini
+
+[MapPreviewBox_CoopBriefingBox]
+FontIndex=0
+```
+
+#### GameLobbyBase Controls
+
+Following controls are only available as children of `GameLobbyBase` and derived controls.
+
+##### [GameSessionCheckBox](https://github.com/CnCNet/xna-cncnet-client/blob/develop/DXMainClient/DXGUI/Generic/GameSessionCheckBox.cs)
+
+_(inherits [XNAClientCheckBox](#XNAClientCheckBox))_
+
+Game option checkbox for the game lobby. Supports broadcasting game options to the CnCNet lobby and displaying them in the game list and filters.
+
+```ini
+[SOMEGAMESESSIONCHECKBOX]                  ; GameSessionCheckBox
+SpawnIniOption=                            ; string,  spawn INI option to set when checked/unchecked.
+EnabledSpawnIniValue=True                  ; string,  spawn INI value when checkbox is checked. Defaults to `True`.
+DisabledSpawnIniValue=False                ; string,  spawn INI value when checkbox is unchecked. Defaults to `False`.
+CustomIniPath=                             ; string,  custom INI path for map-specific settings.
+Reversed=false                             ; boolean, reverse the checkbox behavior.
+Checked=false                              ; boolean, initial checked state.
+MapScoringMode=Irrelevant                  ; enum (Irrelevant | DenyWhenChecked | DenyWhenUnchecked),
+                                           ;          controls whether the setting affects map scoring.
+BroadcastToLobby=false                     ; boolean, include this checkbox in the GAME broadcast to CnCNet lobby.
+ShowInGameList=false                       ; boolean, show icon/text in the game list.
+ShowInGameListOnRight=false                ; boolean, show icon on the right side of the game list. Only applies if 
+                                           ;          `ShowInGameList` is `true`.
+ShowInGameInformationPanel=false           ; boolean, show icon/text in the game information panel.
+ShowInGameInformationPanelAsIconOnly=false ; boolean, show only the icon in the game information panel. Only applies if 
+                                           ;          `ShowInGameInformationPanel` is `true`.
+ShowIconInGameLobby=false                  ; boolean, show icon in the game lobby control.
+ShowInFilters=false                        ; boolean, show this setting in the filters panel for game filtering.
+EnabledIcon=                               ; string,  texture name for the icon when setting is enabled.
+DisabledIcon=                              ; string,  texture name for the icon when setting is disabled.
+SortOrder=0                                ; integer, display order for icons in GameInformationPanel and GameListBox. 
+                                           ;          Lower values appear first.
+```
+
+##### [CampaignCheckBox](https://github.com/CnCNet/xna-cncnet-client/blob/develop/DXMainClient/DXGUI/Campaign/CampaignCheckBox.cs)
+
+_(inherits [GameSessionCheckBox](#GameSessionCheckBox))_
+
+Use this control type for campaign checkboxes in `CampaignSelector.ini`. Inherits all properties from `GameSessionCheckBox`. Additional properties for this control type are shown below.
+
+```ini
+[SOMECAMPAIGNCHECKBOX]                  ; CampaignCheckBox
+ResetToDefaultOnGameExit=false          ; boolean, reset the checkbox to default value when the game exits.
+```
+
+##### [GameLobbyCheckBox](https://github.com/CnCNet/xna-cncnet-client/blob/develop/DXMainClient/DXGUI/Multiplayer/GameLobby/GameLobbyCheckBox.cs)
+
+_(inherits [GameSessionCheckBox](#GameSessionCheckBox))_
+
+Use this control type for game lobby checkboxes in `GameLobbyBase.ini`. Inherits all properties from `GameSessionCheckBox`.
+
+##### [GameSessionDropDown](https://github.com/CnCNet/xna-cncnet-client/blob/develop/DXMainClient/DXGUI/Generic/GameSessionDropDown.cs)
+
+_(inherits [XNAClientDropDown](#XNAClientDropDown))_
+
+Game option dropdown for the game lobby. Supports broadcasting game options to the CnCNet lobby and displaying them in the game list and filters.
+
+```ini
+[SOMEGAMESESSIONDROPDOWN]                  ; GameSessionDropDown
+Items=                                     ; comma-separated strings,
+                                           ;          comma-separated list of item values for the dropdown.
+ItemLabels=                                ; comma-separated strings,
+                                           ;          optional comma-separated list of display labels for items.
+SpawnIniOption=                            ; string,  spawn INI option to set based on selected item.
+DefaultIndex=0                             ; integer, default selected item index.
+DataWriteMode=STRING                       ; enum (STRING | INDEX | BOOLEAN | MAPCODE),
+                                           ;          determines how the value is written to spawn INI.
+OptionName=                                ; string,  display name for this option.
+BroadcastToLobby=false                     ; boolean, include this dropdown in the GAME broadcast to CnCNet lobby.
+ShowInGameList=false                       ; boolean, show icon/text in the game list.
+ShowInGameListOnRight=false                ; boolean, show icon on the right side of the game list. Only applies if 
+                                           ;          `ShowInGameList` is `true`.
+ShowInGameInformationPanel=false           ; boolean, show icon/text in the game information panel.
+ShowInGameInformationPanelAsIconOnly=false ; boolean, show only the icon in the game information panel. Only applies if 
+                                           ;          `ShowInGameInformationPanel` is `true`.
+ShowIconInGameLobby=false                  ; boolean, show icon in the game lobby control.
+ShowInFilters=false                        ; boolean, show this setting in the filters panel for game filtering.
+Icons=                                     ; comma-separated strings,
+                                           ;          texture names for the icons for each dropdown option. Should match the 
+                                           ;          number of items.
+SortOrder=0                                ; integer, display order for icons in GameInformationPanel and GameListBox. 
+                                           ;          Lower values appear first.
+```
+
+##### [CampaignDropDown](https://github.com/CnCNet/xna-cncnet-client/blob/develop/DXMainClient/DXGUI/Campaign/CampaignDropDown.cs)
+
+_(inherits [GameSessionDropDown](#GameSessionDropDown))_
+
+Use this control type for campaign dropdowns in `CampaignSelector.ini`. Inherits all properties from `GameSessionDropDown`.
+
+##### [GameLobbyDropDown](https://github.com/CnCNet/xna-cncnet-client/blob/develop/DXMainClient/DXGUI/Multiplayer/GameLobby/GameLobbyDropDown.cs)
+
+_(inherits [GameSessionDropDown](#GameSessionDropDown))_
+
+Use this control type for game lobby dropdowns in `GameLobbyBase.ini`. Inherits all properties from `GameSessionDropDown`.
+
+#### XNAOptionsPanel Controls
+
+Following controls are only available as children of `XNAOptionsPanel` and derived controls. These currently use basic control properties only.
+
+##### [SettingCheckBox](https://github.com/CnCNet/xna-cncnet-client/blob/develop/DTAConfig/Settings/SettingCheckBox.cs)
+
+_(inherits [XNAClientCheckBox](#XNAClientCheckBox))_
+
+```ini
+[SOMESETTINGCHECKBOX]            ; SettingCheckBox
+DefaultValue=false               ; boolean, default state of the checkbox. Value of `Checked` will be used 
+                                 ;          if it is set and this isn't. Otherwise defaults to `false`.
+SettingSection=CustomSettings    ; string,  name of the section in settings INI the setting is saved to. 
+SettingKey=                      ; string,  name of the key in settings INI the setting is saved to. 
+                                 ;          Defaults to `CONTROLNAME_Value` if `WriteSettingValue` is set, 
+                                 ;          otherwise `CONTROLNAME_Checked`.
+WriteSettingValue=true           ; boolean, enable to write a specific string value to setting INI key 
+                                 ;          instead of the checked state of the checkbox. Defaults to `false`.
+EnabledSettingValue=             ; string,  value to write to setting INI key if `WriteSettingValue` 
+                                 ;          is set and checkbox is checked.
+DisabledSettingValue=            ; string,  value to write to setting INI key if `WriteSettingValue` 
+                                 ;          is set and checkbox is not checked.
+RestartRequired=false            ; boolean, whether or not this setting requires restarting the client to apply. 
+ParentCheckBoxName=              ; string,  name of a `XNAClientCheckBox` control to use as a parent checkbox 
+                                 ;          that is required to either be checked or unchecked, depending on value 
+                                 ;          of ParentCheckBoxRequiredValue for this checkbox to be enabled. 
+                                 ;          Only works if name can be resolved to an existing control belonging
+                                 ;          to same parent as current checkbox.
+ParentCheckBoxRequiredValue=true ; boolean, state required from the parent checkbox for this one to be enabled.
+```
+
+##### [FileSettingCheckBox](https://github.com/CnCNet/xna-cncnet-client/blob/develop/DTAConfig/Settings/FileSettingCheckBox.cs)
+
+_(inherits [XNAClientCheckBox](#XNAClientCheckBox))_
+
+```ini
+[SOMEFILESETTINGCHECKBOX]        ; FileSettingCheckBox
+DefaultValue=false               ; boolean, default state of the checkbox. Value of `Checked` 
+                                 ;          will be used if it is set and this isn't. Otherwise defaults to `false`.
+SettingSection=                  ; string,  name of the section in settings INI the setting is saved to.
+                                 ;          Defaults to `CustomSettings`.
+SettingKey=                      ; string,  name of the key in settings INI the setting is saved to.
+                                 ;          Defaults to `CONTROLNAME_Value` if `WriteSettingValue` is set,
+                                 ;          otherwise `CONTROLNAME_Checked`.
+RestartRequired=false            ; boolean, whether or not this setting requires restarting the client to apply. 
+ParentCheckBoxName=              ; string,  name of a `XNAClientCheckBox` control to use as a parent checkbox that 
+                                 ;          is required to either be checked or unchecked, depending on value of 
+                                 ;          `ParentCheckBoxRequiredValue` for this checkbox to be enabled. 
+                                 ;          Only works if name can be resolved to an existing control belonging
+                                 ;          to same parent as current checkbox.
+ParentCheckBoxRequiredValue=true ; boolean, state required from the parent checkbox for this one to be enabled.
+CheckAvailability=false          ; boolean, if set, whether or not the checkbox can be (un)checked depends on if 
+                                 ;          the files to copy are actually present.
+ResetUnavailableValue=false      ; boolean, if set together with `CheckAvailability`, checkbox set to a value that 
+                                 ;          is unavailable will be reset back to `DefaultValue`.
+EnabledFileN=                    ; comma-separated strings, 
+                                 ;          files to copy if checkbox is checked.
+                                 ;          `N` starts from 0 and is incremented by 1 until no value is found. 
+                                 ;          Expects 2-3 comma-separated strings in following format: 
+                                 ;          source path relative to game root folder, destination path 
+                                 ;          relative to game root folder and a file operation option 
+                                 ;          (see #appendix-file-operation-options).
+DisabledFileN=                   ; comma-separated strings, 
+                                 ;          files to copy if checkbox is not checked. 
+                                 ;          `N` starts from 0 and is incremented by 1 until no value is found. 
+                                 ;          Expects 2-3 comma-separated strings in following format: 
+                                 ;          source path relative to game root folder, destination path
+                                 ;          relative to game root folder and a file operation option 
+                                 ;          (see #appendix-file-operation-options).
+```
+
+##### [SettingDropDown](https://github.com/CnCNet/xna-cncnet-client/blob/develop/DTAConfig/Settings/SettingDropDown.cs)
+
+_(inherits [XNAClientDropDown](#XNAClientDropDown))_
+
+```ini
+[SOMESETTINGDROPDOWN]  ; SettingDropDown
+Items=                 ; comma-separated strings,
+                       ;          comma-separated list of strings to include as items to display on the dropdown control.
+DefaultValue=0         ; integer, default item index of the dropdown.
+SettingSection=        ; string,  name of the section in settings INI the setting is saved to. Defaults to `CustomSettings`.
+SettingKey=            ; string,  name of the key in settings INI the setting is saved to. Defaults to `CONTROLNAME_Value` 
+                       ;          if `WriteSettingValue` is set, otherwise `CONTROLNAME_SelectedIndex`.
+WriteItemValue=false   ; boolean, enable to write selected item value to the setting INI key instead of the 
+                       ;          checked state of the checkbox.
+RestartRequired=true   ; boolean, whether or not this setting requires restarting the client to apply.
+```
+
+##### [FileSettingDropDown](https://github.com/CnCNet/xna-cncnet-client/blob/develop/DTAConfig/Settings/FileSettingDropDown.cs)
+
+_(inherits [XNAClientDropDown](#XNAClientDropDown))_
+
+```ini
+[SOMEFILESETTINGDROPDOWN]            ; FileSettingDropDown
+Items=                               ; comma-separated strings,
+                                     ;          comma-separated list of strings to include as items
+                                     ;          to display on the dropdown control.
+DefaultValue=0                       ; integer, default item index of the dropdown.
+SettingSection=CustomSettings        ; string,  name of the section in settings INI the setting is saved to.
+SettingKey=CONTROLNAME_SelectedIndex ; string,  name of the key in settings INI the setting is saved to. 
+RestartRequired=false                ; boolean, whether or not this setting requires restarting the client to apply.
+ResetUnavailableValue=false          ; boolean, determines if the client would adjust the setting value automatically
+                                     ;          if the current value becomes unavailable.
+ItemXFileN=                          ; comma-separated strings, 
+                                     ;          files to copy when dropdown item `X` is selected. 
+                                     ;          `N` starts from 0 and is incremented by 1 until no value is found. 
+                                     ;          Expects 2-3 comma-separated strings in following format: 
+                                     ;          source path relative to game root folder,
+                                     ;          destination path relative to game root folder and a file operation option 
+                                     ;          (see #appendix-file-operation-options).
+```
+
+##### Appendix: File Operation Options
+
+Valid file operation options available for files defined for `FileSettingCheckBox` and `FileSettingDropDown` are as follows:
+
+- `AlwaysOverwrite`: Always overwrites the destination file with source file.
+- `OverwriteOnMismatch`: Overwrites the destination file with source file only if they are different.
+- `DontOverwrite`: Never overwrites the destination file with source file if destination file is already present.
+- `KeepChanges`: Carries over the destination file with any changes manually made to by caching the file if deleted by disabling the option and then re-enabling it.
+- `AlwaysOverwrite_LinkAsReadOnly`: Try to make a hard link (will look the same as the file but the content of the file will be shared) to the source file (copies the file as a fallback if the linking fails). Recommended to use with any binary source files such as `opengl32.dll`, `d3d9.dll`, `dxgi.dll` and not recommended to use with text files. While link is established, source file and target file has property `Read-only` which protects original file and created link from edits.
+
+### Dynamic Control Properties
+
+Dynamic Control Properties CAN use constants.
+
+These can ONLY be used in parent controls that inherit the `INItializableWindow` class.
+
+```ini
+$X=10            ; integer, the X location of the control  
+$Y=20            ; integer, the Y location of the control  
+$Width=50        ; integer, the Width of the control  
+$Height=10       ; integer, the Height of the control  
+$TextAnchor=LEFT ; enum (NONE | LEFT | RIGHT | HORIZONTAL_CENTER | TOP | BOTTOM | VERTICAL_CENTER),
+                 ;          this will set a text anchor in label draw box.
+```
+
+### Dynamic Control Property Examples
+
+```ini
+[lblExample]
+$X=100
+$X=MY_X_CONSTANT
+$Y=100
+$Y=MY_Y_CONSTANT
+$Width=100
+$Width=MY_WIDTH_CONSTANT
+$Height=100
+$Height=MY_HEIGHT_CONSTANT
+```
+
+## Window Properties
+
+Children of [XNAWindow](https://github.com/CnCNet/xna-cncnet-client/blob/develop/ClientGUI/XNAWindow.cs) that define their own properties.
+
+### [LoadingScreen](https://github.com/CnCNet/xna-cncnet-client/blob/develop/DXMainClient/DXGUI/Generic/LoadingScreen.cs)
+
+```ini
+; LoadingScreen.ini
+[LoadingScreen]
+RandomBackgroundTextures=  ; comma-separated list of strings,
+                           ; paths of files to use randomly as BackgroundTexture
+```
+
+## [CampaignSelector](https://github.com/CnCNet/xna-cncnet-client/blob/develop/DXMainClient/DXGUI/Campaign/CampaignSelector.cs)
+
+### Mission Properties
+
+The following keys are supported in mission sections in `Battle.ini` and in `[ClientMissionConfig]` sections of custom mission map files:
+
+```ini
+[MISSION_SECTION]                    ; Mission
+CD=0                                 ; integer, CD number.
+Side=0                               ; integer, side index for the mission.
+Scenario=                            ; string,  relative path to the map file.
+Description=Undefined mission        ; string,  mission display name. Supports localization.
+SideName=                            ; string,  mission icon asset prefix, not a full path.
+                                     ;          The client appends `icon.png` when loading it
+                                     ;          (for example, `SideName=GDI` loads `GDIicon.png`).
+LongDescription=                     ; string,  mission description text. Supports localization
+                                     ;          and line breaks via `@`.
+FinalMovie=none                      ; string,  movie to play after mission completion.
+RequiredAddon=false                  ; boolean, whether the mission requires the expansion.
+Enabled=true                         ; boolean, whether the mission is selectable.
+BuildOffAlly=false                   ; boolean, whether the player can build off ally structures.
+PlayerAlwaysOnNormalDifficulty=false ; boolean, forces the human player to Normal difficulty
+                                     ;          regardless of the difficulty slider.
+Tags=                                ; comma-separated strings, tags for filtering in the campaign
+                                     ;          tag selector. Custom missions always get the "CUSTOM" tag.
+PreviewImage=                        ; string,  path relative to `Resources/Mission Previews/`
+                                     ;          for the mission preview image.
+```
+
+### Custom Mission Map Files
+
+Custom mission `.map` files placed in the `CustomMissionPath` directory (see [ClientDefinition](#ClientDefinition)) are scanned for two INI sections:
+
+- **`[ClientMissionConfig]`** — **required** for the map to be recognized as a custom mission. Supports the client-facing keys from [Mission Properties](#mission-properties), except that for custom missions `Scenario` is derived from the `.map` filename/path and `Tags` is always set to `CUSTOM`.
+- **`[GameMissionConfig]`** — **optional**. Key-value pairs are written to `spawn.ini` at launch time. Used for loading screen configuration and other engine-level settings.
+
+```ini
+; In a custom mission .map file
+
+[ClientMissionConfig]
+Description=My Custom Mission
+Side=0
+Enabled=true
+
+[GameMissionConfig]
+; Optional. Written to spawn.ini at launch.
+; If loading screen keys are present, ReadMissionSection=Yes is set in spawn.ini.
+```
+
+If `[GameMissionConfig]` is not present or does not specify loading screen keys, the client automatically looks for `.shp` and `.pal` supplement files as fallback loading screen assets. 
+
+Note, supplemental mission files must be configured in `ClientDefinitions.ini` using `CustomMissionPath` together with `CustomMissionSupplementFileNExtension` and `CustomMissionSupplementFileNCopyAs` as sequential `(extension, copy-as filename)` pairs, where `N` refers to a sequential number.
+
+### [pnlMissionPreview](https://github.com/CnCNet/xna-cncnet-client/blob/develop/DXMainClient/DXGUI/Campaign/CampaignSelector.cs)
+
+_(inherits [XNAPanel](#XNAPanel))_
+
+You can now set the preview image for each mission in the campaign selector, known as the mission preview panel.
+
+To activate this feature, in `Resources` folder, create a `Mission Previews` folder. Then put an image of your desire inside and rename it as `Default.png`.
+
+To adjust panel size and position, modify `pnlMissionPreview` in `CampaignSelector.ini`. Inherits all properties from `XNAPanel`.
+
+```ini
+[pnlMissionPreview]          ; XNAPanel
+...
+```
+
+To configure which preview image in `Resources/Mission Previews` folder to use for each mission, add the `PreviewImage` property in the mission's section in `Battle.ini` (or `[ClientMissionConfig]` for custom missions) and set its value to the path of the image file relative to the `Resources/Mission Previews` folder.
+
+In `Battle.ini`:
+```ini
+[YourMissionSection]
+PreviewImage= ; string, path to the image file relative to the `Resources/Mission Previews` folder to use as mission preview image.
+```
+
+If `PreviewImage` property is not set for a mission, `Resources/Mission Previews/Default.png` will be used as default.
+
+### [tbMissionDescription](https://github.com/CnCNet/xna-cncnet-client/blob/develop/DXMainClient/DXGUI/Campaign/CampaignSelector.cs)
+
+_(inherits [XNATextBlock](#XNATextBlock))_
+
+This control shows the mission description in the campaign selector. Note that, when mission preview panel is active, the *default* size of mission description text block size will be automatically changed.
+
+To adjust the text block size and position, modify `tbMissionDescription` in `CampaignSelector.ini`. Inherits all properties from `XNATextBlock`.
+
+```ini
+[tbMissionDescription]       ; XNATextBlock
+...
+```
+
+### Campaign Tag Selector
+
+When `CampaignTagSelectorEnabled=true` in `ClientDefinitions.ini`, a tag selector window appears before the campaign selector. It allows players to filter missions by their `Tags` property.
+
+Define tag buttons in `CampaignTagSelector.ini` using the naming pattern `ButtonTag_{TagName}`:
+
+```ini
+[CampaignTagSelector]
+$CC00=ButtonTag_Story:XNAClientButton
+$CC01=ButtonTag_Challenge:XNAClientButton
+$CC02=btnShowAllMission:XNAClientButton
+$CC03=btnCancel:XNAClientButton
+
+[ButtonTag_Story]
+; Button properties...
+
+[ButtonTag_Challenge]
+; Button properties...
+
+[btnShowAllMission]
+; "Show All Missions" button - shows all missions regardless of tags.
+```
+
+The tag name in `ButtonTag_{TagName}` is matched against mission `Tags` values. Custom missions automatically receive the `CUSTOM` tag.
+
+### Campaign Game Options and Forced Spawn Options
+
+`CampaignCheckBox` and `CampaignDropDown` controls can be added to `CampaignSelector.ini` to provide player-selectable options for campaign missions. See [GameSessionCheckBox](#GameSessionCheckBox) and [GameSessionDropDown](#GameSessionDropDown).
+
+A `[CampaignForcedSpawnIniOptions]` section in `GameOptions.ini` defines keys that are always written to `spawn.ini` for campaign missions, regardless of UI options. This is separate from the multiplayer `[ForcedSpawnIniOptions]` section. See [GameOptions](#GameOptions).
+
+# Global Config Files
+
+## [ClientDefinition](https://github.com/CnCNet/xna-cncnet-client/blob/develop/ClientCore/ClientConfiguration.cs)
+> [!NOTE]
+> _TODO work in progress_
+
+The `ClientDefinitions.ini` file defines the client's global settings, including the game type, recommended resolutions and the executable file used to launch the game.
+
+In `ClientDefinitions.ini`:
+```ini
+[Settings]
+TrustedDomains=                ; comma-separated list of strings,
+                               ; domain names to match links and prevent the message box from appearing before they open by default browser
+                               ; example: cncnet.org,github.com,moddb.com
+```
+
+```ini
+[Settings]
+SaveSkirmishGameOptions=false  ; boolean, whether or not previously used game options in skirmish are saved across client sessions
+SaveCampaignGameOptions=false  ; boolean, whether or not previously used game options in campaign are saved across client sessions
+```
+
+```ini
+[Settings]
+CustomMissionPath=Maps/CustomMissions ; path to the folder containing fan-made maps
+CustomMissionSupplementFile0Extension=csf ; extension of the first supplement file
+CustomMissionSupplementFile0CopyAs=stringtable99.csf ; target filename for the first supplement file (required if Extension is present)
+CustomMissionSupplementFile1Extension=pal ; extension of the second supplement file
+CustomMissionSupplementFile1CopyAs=custommission.pal ; target filename for the second supplement file (required if Extension is present)
+CustomMissionSupplementFile2Extension=shp ; extension of the third supplement file
+CustomMissionSupplementFile2CopyAs=custommission.shp ; target filename for the third supplement file (required if Extension is present)
+; supplement files that are supposed to be copied to the game folder when a custom mission is played
+; the iteration stops if a number is missing (e.g., if File3Extension is missing, only File0, File1, and File2 are processed)
+; both Extension and CopyAs must be provided for each file number; each Extension value must be unique - duplicate extensions are not allowed
+```
+
+```ini
+[Settings]
+ReturnToMainMenuOnMissionLaunch=true ; whether or not client returns to main menu when launching a mission
+```
+
+```ini
+[Settings]
+CampaignTagSelectorEnabled=false ; turns on the campaign tag selector, showing a window to let users choose which group of missions to play
+```
+
+```ini
+[Settings]
+CompatibilityCheckExecutables=CnCNetYRLauncher.exe,gamemd.exe,gamemd-spawn.exe ; comma-separated list of strings, to check for DirectDraw compatibility mode issues
+```
+
+```ini
+[Settings]
+ShowGameIconInGameList=true ; boolean, whether to show the game icon in the game listing. Defaults to true.
+```
+
+```ini
+[Settings]
+AllowedCustomGameModes=Standard,Custom Map ; comma-separated list of strings,
+                                           ; game modes that custom (unofficial) maps are allowed to appear in.
+                                           ; Official maps are not affected by this filter.
+```
+
+## Game Modes
+
+Game modes are defined in the `[GameModes]` section of `MPMaps.ini`. Each game mode can have its own configuration section with the same name.
+
+In `MPMaps.ini`:
+```ini
+[GameModes]
+0=Standard
+1=No Bases
+2=Infantry Only
+
+[Standard]
+UIName=Standard
+; Game mode properties...
+
+[No Bases]
+UIName=No Bases
+; Game mode properties...
+```
+
+### Game Mode Properties
+
+```ini
+[GAME_MODE_NAME]                       ; GameMode
+UIName=                                ; string,  display name for the game mode. Defaults to the section name.
+MinPlayersOverride=                    ; integer, override for minimum player count.
+MaxPlayersOverride=                    ; integer, override for maximum player count.
+DisallowedPlayerSides=                 ; comma-separated integers,
+                                       ;          side indices that ALL players cannot select.
+DisallowedHumanPlayerSides=            ; comma-separated integers,
+                                       ;          side indices that HUMAN players cannot select.
+DisallowedComputerPlayerSides=         ; comma-separated integers,
+                                       ;          side indices that AI players cannot select.
+ForcedOptions=                         ; string,  name of an INI section whose keys become forced
+                                       ;          checkbox/dropdown values.
+ForcedSpawnIniOptions=                 ; string,  name of an INI section whose key-value pairs are
+                                       ;          written to spawn.ini [Settings].
+                                       ;          Defaults to `{Name}ForcedSpawnIniOptions`.
+MapCodeIniName=                        ; string,  name of the map code INI file in `INI/Map Code/`.
+                                       ;          Defaults to `{Name}.ini`.
+RandomizedMapCodeIniNames=             ; comma-separated strings,
+                                       ;          additional randomized map code INI names.
+RandomizedMapCodesCount=1              ; integer, how many of the randomized map codes to pick.
+```
+
+### GameModeMapBase Properties
+
+The following properties are shared between maps (in `MPMaps.ini` map sections) and game modes. When both a map and its game mode define the same property, the map value takes priority unless noted otherwise.
+
+```ini
+; Map section keys:
+[MAP_NAME]
+MinPlayer=                            ; integer,  minimum player count.
+ClientMaxPlayer=                      ; integer,  maximum player count (client-side).
+MaxPlayer=                            ; integer,  maximum player count (game-side).
+EnforceMaxPlayers=                    ; boolean,  whether MaxPlayer is enforced.
+AllowedStartingLocations=             ; comma-separated integers,
+                                      ;           restricts which starting locations can be used.
+IsCoopMission=                        ; boolean,  marks the map as a co-op mission.
+ClientMultiplayerOnly=                ; boolean,  whether the map cannot be played in Skirmish.
+HumanPlayersOnly=                     ; boolean,  whether AI players are forbidden.
+ForceRandomStartLocations=            ; boolean,  force random starting positions.
+ForceNoTeams=                         ; boolean,  force no team assignments.
+CoopDifficultyLevel=                  ; integer,  co-op difficulty override.
+
+; Game mode section keys (same properties, slightly different names):
+[GAME_MODE]
+MinPlayers=                           ; integer,  minimum player count.
+MaxPlayers=                           ; integer,  maximum player count.
+EnforceMaxPlayers=                    ; boolean,  whether MaxPlayers is enforced.
+AllowedStartingLocations=             ; comma-separated integers.
+IsCoopMission=                        ; boolean,  marks the mode as co-op.
+MultiplayerOnly=                      ; boolean,  whether maps in this mode cannot be played in Skirmish.
+HumanPlayersOnly=                     ; boolean,  whether AI players are forbidden.
+ForceRandomStartLocations=            ; boolean,  force random starting positions.
+ForceNoTeams=                         ; boolean,  force no team assignments.
+CoopDifficultyLevel=                  ; integer,  co-op difficulty override.
+```
+
+Priority resolution for player counts:
+- `MaxPlayers`: `GameMode.MaxPlayersOverride` > `Map.MaxPlayer` > `GameMode.MaxPlayers`
+- `MinPlayers`: `GameMode.MinPlayersOverride` > `Map.MinPlayer` > `GameMode.MinPlayers`
+
+### Map Extra INI
+
+Maps can specify an extra INI file to consolidate into the map's INI at game launch:
+
+```ini
+; In a map section of MPMaps.ini
+ExtraIniName=MyExtraCode.ini  ; filename in `INI/Map Code/` to consolidate into the map INI
+```
+
+## GameOptions
+
+The `GameOptions.ini` file defines sides, random selectors, multiplayer colors, and forced spawn options.
+
+### ForcedSpawnIniOptions
+
+Forced spawn options define keys that are always written to `spawn.ini` regardless of UI settings. They can be defined at multiple levels:
+
+1. **Global** — `[ForcedSpawnIniOptions]` in `GameOptions.ini`: applied to all multiplayer games.
+2. **Campaign** — `[CampaignForcedSpawnIniOptions]` in `GameOptions.ini`: applied to campaign missions only.
+3. **Per game mode** — each game mode section in `MPMaps.ini` can specify `ForcedSpawnIniOptions=SectionName` pointing to a section whose keys are written to `spawn.ini`.
+4. **Per map** — maps can specify `ForcedSpawnIniOptions=SectionName` (comma-separated for multiple sections) in `MPMaps.ini`.
+
+Spawn.ini writing order for multiplayer:
+1. Game lobby checkboxes/dropdowns
+2. Global `[ForcedSpawnIniOptions]` from `GameOptions.ini`
+3. Game mode specific forced options
+4. Map specific forced options
+
+In `GameOptions.ini`:
+```ini
+[ForcedSpawnIniOptions]
+FogOfWar=no
+MultiEngineer=yes
+; Keys written here override lobby UI values for all multiplayer games.
+
+[CampaignForcedSpawnIniOptions]
+; Keys written here override all other options for campaign missions.
+AutoSaveInterval=0
+```
+
+In `MPMaps.ini`:
+```ini
+[MyGameMode]
+ForcedSpawnIniOptions=MyModeForcedOptions
+
+[MyModeForcedOptions]
+; Keys here are written to spawn.ini when this game mode is active.
+SomeOption=value
+
+[MyMap]
+ForcedSpawnIniOptions=MyMapForcedOptions
+
+[MyMapForcedOptions]
+; Keys here are written to spawn.ini when this specific map is played.
+AnotherOption=value
+```
