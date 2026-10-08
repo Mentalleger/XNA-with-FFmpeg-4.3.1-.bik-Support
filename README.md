@@ -1,12 +1,12 @@
 # THIS IS A FORK OF CnCNet Client
 # What's Changed :
-Added .bik video support into the main menu background, so you can add a .bik video into the main menu
+Added .bik video support into the main menu background, so you can add a .bik video into the main menu.
 uses FFmpeg 4.3.1
 
 # HOW TO USE
-- Compile the application with XNA, make sure it compiles into x86 (32 bit)
-- Copy all of the content from DXMainClient/FFmpeg into the compiled clientxna.exe (DXMainCLient/bin/Debug/clientxna.exe)
-- run the launcher
+- Compile the application with XNA, make sure it compiles into x86 (32 bit).
+- Copy all of the content from DXMainClient/FFmpeg into the compiled clientxna.exe (DXMainCLient/bin/Debug/clientxna.exe).
+- run the launcher.
 
 # Credit
 All credit goes to every single contributor of XNA Client, and the creator of XNA Client itself.
