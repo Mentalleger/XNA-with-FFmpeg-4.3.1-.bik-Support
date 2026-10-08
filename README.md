@@ -1,3 +1,19 @@
+# THIS IS A FORK OF CnCNet Client
+# What's Changed :
+Added .bik video support into the main menu background, so you can add a .bik video into the main menu
+uses FFmpeg 4.3.1
+
+# HOW TO USE
+- Compile the application with XNA, make sure it compiles into x86 (32 bit)
+- Copy all of the content from DXMainClient/FFmpeg into the compiled clientxna.exe (DXMainCLient/bin/Debug/clientxna.exe)
+- run the launcher
+
+# Credit
+All credit goes to every single contributor of XNA Client, and the creator of XNA Client itself.
+i merely added a video player support.
+
+#----------------------------------------------------------
+#----------------------------------------------------------
 # CnCNet Client
 
 The MonoGame / XNA CnCNet client, a platform for playing classic Command & Conquer games and their mods both online and offline. Supports setting up and launching both singleplayer and multiplayer games with [a CnCNet game spawner](https://github.com/CnCNet/ts-patches). Includes an IRC-based chat client with advanced features like private messaging, a friend list, a configurable game lobby, flexible and moddable UI graphics, and extras like game setting configuration and keeping track of match statistics. And much more!
